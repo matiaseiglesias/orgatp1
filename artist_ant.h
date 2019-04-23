@@ -3,11 +3,11 @@
 
 #include <unistd.h>
 
-//#include "ant_constants.h"
+#include "ant_constants.h"
 
-//typedef enum colour {RED = CR, GREEN = CG, BLUE = CB, YELLOW = CY, BLACK = CN, WHITE = CW} colour_t;
-//typedef enum orientation {NORTH = ON, SOUTH = OS, EAST = OE, WEST = OW} orientation_t;
-//typedef enum rotation {LEFT = RL, RIGHT = RR} rotation_t;
+typedef enum colour {RED = CR, GREEN = CG, BLUE = CB, YELLOW = CY, BLACK = CN, WHITE = CW} colour_t;
+typedef enum orientation {NORTH = ON, SOUTH = OS, EAST = OE, WEST = OW} orientation_t;
+typedef enum rotation {LEFT = RL, RIGHT = RR} rotation_t;
 
 typedef struct {
     uint32_t x, y;
