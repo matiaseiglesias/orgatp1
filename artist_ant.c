@@ -145,6 +145,10 @@ main(int argc, char **argv)
 
   grid_out();
 
+  free_grid(grid_width, grid_height);
+  free(palette);
+  free(rules);
+
   return 0;
 }
 
@@ -164,6 +168,16 @@ make_grid(uint32_t w, uint32_t h, colour_t c)
   }
 
   return &grid;
+}
+
+void
+free_grid(uint32_t w, uint32_t h)
+{
+  for (int i=0; i < w; i++) {
+    free(grid.grid[i]);
+  }
+
+  free(grid.grid);
 }
 
 void*

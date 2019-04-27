@@ -51,9 +51,11 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 		grid->grid[ant->y][ant->x] = palette[i];
 
 		if (proxima_orientacion == NORTH) {
-			ant->y--;
-			if (ant->y < 0)
+			int32_t new_y = ant->y - 1;
+			if (new_y < 0)
 				ant->y = grid->height - 1;
+			else
+				ant->y = new_y;
 		} else if (proxima_orientacion == SOUTH) {
 			ant->y++;
 			if (ant->y == grid->height)
@@ -63,9 +65,11 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 			if (ant->x == grid->width)
 				ant->x = 0;
 		} else {
-			ant->x--;
-			if (ant->x < 0)
+			int32_t new_x = ant->x - 1;
+			if (new_x < 0)
 				ant->x = grid->width - 1;
+			else
+				ant->x = new_x;
 		}
 		ant->o = proxima_orientacion;
 	}

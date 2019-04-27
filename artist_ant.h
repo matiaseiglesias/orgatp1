@@ -28,6 +28,8 @@ void* make_palette(char *colours);
 
 void* make_grid(uint32_t w, uint32_t h, colour_t c);
 
+void free_grid(uint32_t w, uint32_t h);
+
 void* make_ant(uint32_t xini, uint32_t yini);
 
 void grid_out();
