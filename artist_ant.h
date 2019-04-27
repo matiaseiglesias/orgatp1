@@ -6,7 +6,10 @@
 #include "ant_constants.h"
 
 typedef enum colour {RED = CR, GREEN = CG, BLUE = CB, YELLOW = CY, BLACK = CN, WHITE = CW, NOTACOLOR} colour_t;
-typedef enum orientation {NORTH = ON, SOUTH = OS, EAST = OE, WEST = OW} orientation_t;
+typedef struct orientacion{
+    int32_t x, y;
+} orientation_t;
+
 typedef enum rotation {LEFT = RL, RIGHT = RR, NOTAROTATION} rotation_t;
 
 typedef struct {
@@ -27,6 +30,8 @@ void* make_rules(char *spec);
 void* make_palette(char *colours);
 
 void* make_grid(uint32_t w, uint32_t h, colour_t c);
+
+void free_grid(uint32_t w, uint32_t h);
 
 void* make_ant(uint32_t xini, uint32_t yini);
 
