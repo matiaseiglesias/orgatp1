@@ -5,70 +5,72 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_NUM_COLOR 6
-
 size_t
-array_size(void *array)
+palette_size(colour_t *array)
 {
-	int *new_array = (int *) array;
 	size_t i = 0;
-	while (new_array[i] != -1) {
+	while (array[i] != NOTACOLOR) {
 		i++;
 	}
 	return i;
 }
 
 void *
-paint(void *ant, void *grid, void *palette, void *rules, uint32_t iterations)
+paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterations)
 {
-	ant_t *new_ant = ant;
-	square_grid_t *new_grid = grid;
-	int *new_rules = rules;
-	int *new_palette = palette;
+	ant_t *ant = ant_p;
+	square_grid_t *grid = grid_p;
+	rotation_t *rules = rules_p;
+	colour_t *palette = palette_p;
 
-	orientation_t estados[4][2];
-	estados[NORTH][LEFT] = WEST;
-	estados[NORTH][RIGHT] = EAST;
-	estados[SOUTH][LEFT] = EAST;
-	estados[SOUTH][RIGHT] = WEST;
-	estados[EAST][LEFT] = NORTH;
-	estados[EAST][RIGHT] = SOUTH;
-	estados[WEST][LEFT] = SOUTH;
-	estados[WEST][RIGHT] = NORTH;
+	orientation_t rotaciones[4][2];
+	rotaciones[NORTH][LEFT] = WEST;
+	rotaciones[NORTH][RIGHT] = EAST;
+	rotaciones[SOUTH][LEFT] = EAST;
+	rotaciones[SOUTH][RIGHT] = WEST;
+	rotaciones[EAST][LEFT] = NORTH;
+	rotaciones[EAST][RIGHT] = SOUTH;
+	rotaciones[WEST][LEFT] = SOUTH;
+	rotaciones[WEST][RIGHT] = NORTH;
 
-	int colour_rule[MAX_NUM_COLOR];
-	for (uint32_t i = 0; new_palette[i] != -1; i++) {
-		colour_rule[new_palette[i]] = new_rules[0];
+	size_t palette_len = palette_size(palette);
+
+	rotation_t *colour_rule = malloc((palette_len - 1) * sizeof(rotation_t));
+	for (size_t i = 0; i < palette_len; i++) {
+		colour_rule[palette[i]] = rules[i];
 	}
 
 	for (uint32_t i = 1; i <= iterations; i++) {
-		if (i == array_size(palette)) {
+		if (i == palette_len) {
 			iterations = iterations - i;
 			i = 0;
 		}
-		orientation_t proximo_estado =
-		        estados[new_ant->o]
-		               [colour_rule[new_grid->grid[new_ant->x][new_ant->y]]];
-		new_grid->grid[new_ant->y][new_ant->x] = new_palette[i];
+		orientation_t proxima_orientacion =
+		        rotaciones[ant->o]
+		               [colour_rule[grid->grid[ant->x][ant->y]]];
+		grid->grid[ant->y][ant->x] = palette[i];
 
-		if (proximo_estado == NORTH) {
-			new_ant->y--;
-			if (new_ant->y < 0)
-				new_ant->y = new_grid->height - 1;
-		} else if (proximo_estado == SOUTH) {
-			new_ant->y++;
-			if (new_ant->y == new_grid->height)
-				new_ant->y = 0;
-		} else if (proximo_estado == EAST) {
-			new_ant->x++;
-			if (new_ant->x == new_grid->width)
-				new_ant->x = 0;
+		//printf("rule: %i\n", colour_rule[new_grid->grid[new_ant->x][new_ant->y]]);
+		//printf("proximo estado: %i\n", proximo_estado);
+
+		if (proxima_orientacion == NORTH) {
+			ant->y--;
+			if (ant->y < 0)
+				ant->y = grid->height - 1;
+		} else if (proxima_orientacion == SOUTH) {
+			ant->y++;
+			if (ant->y == grid->height)
+				ant->y = 0;
+		} else if (proxima_orientacion == EAST) {
+			ant->x++;
+			if (ant->x == grid->width)
+				ant->x = 0;
 		} else {
-			new_ant->x--;
-			if (new_ant->x < 0)
-				new_ant->x = new_grid->width - 1;
+			ant->x--;
+			if (ant->x < 0)
+				ant->x = grid->width - 1;
 		}
-		new_ant->o = proximo_estado;
+		ant->o = proxima_orientacion;
 	}
 	return grid;
 }
@@ -79,51 +81,58 @@ make_rules(char *spec)
 	size_t rules_size = (strlen(spec) / 2) + 1 + 1;
 	rotation_t *rules = malloc(rules_size * sizeof(rotation_t));
 
-	for (uint32_t i = 0; spec[i] != '\0'; i++) {
+	size_t i = 0, j = 0;
+	for (; spec[i] != '\0'; i++) {
 		char rule = spec[i];
 		switch (rule) {
 		case 'R':
-			rules[i / 2] = RIGHT;
+			rules[j] = RIGHT;
 			break;
 		case 'L':
-			rules[i / 2] = LEFT;
+			rules[j] = LEFT;
 			break;
+		default:
+			continue;
 		}
+		j++;
 	}
-	rules[rules_size - 1] = -1;
+	rules[rules_size - 1] = NOTAROTATION;
 	return rules;
 }
 
 void *
 make_palette(char *colours)
 {
-	printf("colours: %s\n", colours);
 	size_t palette_size = ((strlen(colours) / 2) + 1 + 1);
 	colour_t *palette = malloc(palette_size * sizeof(colour_t));
 
-	for (size_t i = 0; colours[i] != '\0'; i++) {
+	size_t i = 0, j = 0;
+	for (; colours[i] != '\0'; i++) {
 		char colour = colours[i];
 		switch (colour) {
 		case 'R':
-			palette[i / 2] = RED;
+			palette[j] = RED;
 			break;
 		case 'B':
-			palette[i / 2] = BLUE;
+			palette[j] = BLUE;
 			break;
 		case 'G':
-			palette[i / 2] = GREEN;
+			palette[j] = GREEN;
 			break;
 		case 'Y':
-			palette[i / 2] = YELLOW;
+			palette[j] = YELLOW;
 			break;
 		case 'W':
-			palette[i / 2] = WHITE;
+			palette[j] = WHITE;
 			break;
 		case 'N':
-			palette[i / 2] = BLACK;
+			palette[j] = BLACK;
 			break;
+		default:
+			continue;
 		}
+		j++;
 	}
-	palette[palette_size - 1] = -1;
+	palette[palette_size - 1] = NOTACOLOR;
 	return palette;
 }
