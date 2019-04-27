@@ -7,7 +7,7 @@
 ################
 
 # Nombre del ejecutable.
-target = tp
+target = tp.exe
 
 # Extensión de los archivos a compilar (c para C, cpp o cc o cxx para C++).
 extension = c
@@ -149,3 +149,5 @@ $(target): $(o_files)
 clean:
 	$(RM) $(o_files) $(target)
 
+format: .clang-files .clang-format
+	xargs -r clang-format -i <$<
