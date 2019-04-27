@@ -88,15 +88,15 @@ main(int argc, char **argv)
 
         break;
       case 'p': /* palette */
-        colour_spec = (char *) malloc(strlen(optarg));
-        memcpy(colour_spec, optarg, strlen(optarg));
+        colour_spec = (char *) malloc(strlen(optarg) + 1);
+        memcpy(colour_spec, optarg, strlen(optarg) + 1);
         initial = get_colour(optarg[0]);
 
         break;
 
       case 'r': /* rules */
-       rule_spec = (char *) malloc(strlen(optarg));
-       memcpy(rule_spec, optarg, strlen(optarg));
+       rule_spec = (char *) malloc(strlen(optarg) + 1);
+       memcpy(rule_spec, optarg, strlen(optarg) + 1);
 
        break;
 
@@ -146,6 +146,8 @@ main(int argc, char **argv)
   grid_out();
 
   free_grid(grid_width, grid_height);
+  free(rule_spec);
+  free(colour_spec);
   free(palette);
   free(rules);
 

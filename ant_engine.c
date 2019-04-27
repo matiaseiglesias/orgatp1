@@ -18,29 +18,20 @@ palette_size(colour_t *array)
 void
 rotate(orientation_t *orientation, rotation_t rotation)
 {
-	//printf("----------------------------\n");
-	//printf("orientacion x ant: %i\n", orientation->x);
-	//printf("orientacion y ant: %i\n", orientation->y);
 	if (rotation == LEFT) {
-		//printf("rotation: LEFT\n");
 		uint32_t old_x = orientation->x;
 		orientation->x = -orientation->y;
 		orientation->y = old_x;
 	} else if (rotation == RIGHT) {
-		//printf("rotation: RIGHT\n");
 		uint32_t old_x = orientation->x;
 		orientation->x = orientation->y;
 		orientation->y = -old_x;
 	}
-	//printf("orientacion x new: %i\n", orientation->x);
-	//printf("orientacion y new: %i\n", orientation->y);
 }
 
 void
 advance(ant_t *ant, square_grid_t *grid)
 {
-	//printf("posicion x ant: %i\n", ant->x);
-	//printf("posicion y ant: %i\n", ant->y);
 	if (ant->o.x) {
 		int32_t new_x = ant->x + ant->o.x;
 		if (new_x < 0)
@@ -58,8 +49,6 @@ advance(ant_t *ant, square_grid_t *grid)
 		else
 			ant->y = new_y;
 	}
-	//printf("posicion x new: %i\n", ant->x);
-	//printf("posicion y new: %i\n", ant->y);
 }
 
 void *
@@ -72,7 +61,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 
 	size_t palette_len = palette_size(palette);
 
-	rotation_t *colour_rule = malloc((palette_len - 1) * sizeof(rotation_t));
+	rotation_t colour_rule[MAXCOLOR];
 	for (size_t i = 0; i < palette_len; i++) {
 		colour_rule[palette[i]] = rules[i];
 	}
