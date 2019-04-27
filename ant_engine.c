@@ -50,9 +50,6 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 		               [colour_rule[grid->grid[ant->x][ant->y]]];
 		grid->grid[ant->y][ant->x] = palette[i];
 
-		//printf("rule: %i\n", colour_rule[new_grid->grid[new_ant->x][new_ant->y]]);
-		//printf("proximo estado: %i\n", proximo_estado);
-
 		if (proxima_orientacion == NORTH) {
 			ant->y--;
 			if (ant->y < 0)
