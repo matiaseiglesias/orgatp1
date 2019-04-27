@@ -35,7 +35,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 
 	size_t palette_len = palette_size(palette);
 
-	rotation_t *colour_rule = malloc((palette_len - 1) * sizeof(rotation_t));
+	rotation_t colour_rule[MAXCOLOR];
 	for (size_t i = 0; i < palette_len; i++) {
 		colour_rule[palette[i]] = rules[i];
 	}
@@ -47,7 +47,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 		}
 		orientation_t proxima_orientacion =
 		        rotaciones[ant->o]
-		               [colour_rule[grid->grid[ant->x][ant->y]]];
+		                  [colour_rule[grid->grid[ant->x][ant->y]]];
 		grid->grid[ant->y][ant->x] = palette[i];
 
 		if (proxima_orientacion == NORTH) {
