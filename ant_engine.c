@@ -15,6 +15,7 @@ palette_size(colour_t *array)
 	return i;
 }
 
+#ifndef ASSEMBLY
 void *
 paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterations)
 {
@@ -75,6 +76,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 	}
 	return grid;
 }
+#endif
 
 void *
 make_rules(char *spec)
