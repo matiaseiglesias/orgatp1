@@ -76,6 +76,13 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 	}
 	return grid;
 }
+#else
+void *
+paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterations)
+{					\
+	printf("%u\n",paint_a());
+	return grid_p;
+}
 #endif
 
 void *
