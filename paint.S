@@ -73,18 +73,21 @@ $CONTINUE:
 	lw		$t2, ANT_Y($s0)		// t2 <- (ant->y)
 	lw		$t3, GRID_WIDTH($s1)// t3 <- (grid->width)
 	lw		$t4, GRID_GRID($s1)	// t4 <- (grid->grid)
-	mulou	$t5, $t3, $t2		// t5 <- C_grid*y
-	addu	$t5, $t5, $t1		// t5 <- C_grid*y + x
-	mulou	$t5, $t5, 4			// t5 <- (x+C_grid*y)*sizeof(colour_t)
-	addu	$t5, $t5, $t4 		// t5 <- &(grid->grid[ant->x][ant->y])
-	lw		$t6, 0($t5)			// t6 <- grid->grid[ant->x][ant->y]
+	sll		$t5, $t2, 2			// t5 <- ant->y * 4
+	addu	$t5, $t5, $t4		// t5 <- &(&(grid[x][ant->y])) (la columna)
+	lw		$t5, 0($t5)			// t5 <- &(grid[x][ant->y]) (la columna)
+	sll		$t1, $t1, 2			// t1 <- ant->x * 4
+	addu	$t5, $t5, $t1		// t5 <- &(grid[ant->x][ant->y])
+	lw 		$t6, 0($t5)			// t6 <- grid[ant->x][ant->y]
+	sll		$t6, $t6, 2			// t6 <- grid[ant->x][ant->y] * 4
 	addu	$t6, $t6, $sp		// t6 <- &(colour_rule[grid->grid[ant->x][ant->y]])
 	lw		$t6, 0($t6)			// t6 <- colour_rule[grid->grid[ant->x][ant->y]]
 	lw		$t7, ANT_O($s0)		// t7 <- (ant->o)
 	mulou	$t6, $t6, 2			// t6 <- C_rot*y
 	addu	$t6, $t6, $t7		// t6 <- C_rot*y + x
 	mulou	$t6, $t6, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
-	addiu	$t6, $t6, rotaciones // t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
+	la		$t7, rotaciones		// t7 <- &rotaciones
+	addu	$t6, $t6, $t7		// t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
 	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
 
 	addu	$t1, $s5, $s2		// t1 <- &(palette[i])
