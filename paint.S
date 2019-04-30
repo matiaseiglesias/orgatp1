@@ -10,60 +10,60 @@
 #define ABA_4 32
 
 #define LTA_S 24
-    .text
+	.text
 	.globl paint_a
 	.align 2
 
 	.ent paint_a
 
 paint_a:
-	subu 	$sp, $sp, SRA_S
+	subu	$sp, $sp, SRA_S
 	sw		$ra, O_RA($sp)
 	sw		$fp, O_FP($sp)
 	sw		$gp, O_GP($sp)
 	move	$fp, $sp
-	sw 		$a0, ABA_0($fp)
-	sw 		$a1, ABA_1($fp)
-	sw 		$a2, ABA_2($fp)
-	sw 		$a3, ABA_3($fp)
+	sw		$a0, ABA_0($fp)
+	sw		$a1, ABA_1($fp)
+	sw		$a2, ABA_2($fp)
+	sw		$a3, ABA_3($fp)
 
-	subu 	$sp, $sp, LTA_S
+	subu	$sp, $sp, LTA_S
 	
 	//call palette_size
-	move 	$s0, $a0
+	move	$s0, $a0
 	move	$a0, $a2
 	jal		palette_size
 	move	$a0, $s0
 
-	addu 	$t0, $0, $v0
-	sll		$t0, $t0, 2   // t0 <- t0 * 4
+	addu	$t0, $0, $v0
+	sll		$t0, $t0, 2		// t0 <- t0 * 4
 $LOOP:
-	addu  	$t3, $t0, $a3
-	lw 		$t1, 0($t3)   // t1 <- rules[i]
-	addu  	$t3, $t0, $a2
-	lw		$t2, 0($t3)   // t2 <- palette[i]
-	sll		$t2, $t2, 2   // t2 <- t2 * 4
+	addu	$t3, $t0, $a3
+	lw		$t1, 0($t3)		// t1 <- rules[i]
+	addu	$t3, $t0, $a2
+	lw		$t2, 0($t3)		// t2 <- palette[i]
+	sll		$t2, $t2, 2		// t2 <- t2 * 4
 	addu	$t2, $t2, $sp 
-	sw		$t1, 0($t2)   // colour_rule[palette[i]] <- t1
-	sub	$t0, $t0, 4
-	bltz 	$t0, $FIN
+	sw		$t1, 0($t2)		// colour_rule[palette[i]] <- t1
+	sub		$t0, $t0, 4
+	bltz	$t0, $FIN
 	nop
-	b 		$LOOP
+	b		$LOOP
 	nop
 $FIN:
 	lw		$v0, CG($sp)
 
-	move 	$sp, $fp
+	move	$sp, $fp
 	lw		$ra, O_RA($sp)
-	lw 		$fp, O_FP($sp)
+	lw		$fp, O_FP($sp)
 	lw		$gp, O_GP($sp)
-	addu 	$sp, $sp, SRA_S
+	addu	$sp, $sp, SRA_S
 	jr		$ra
 	
 	.end	paint_a
 
 .data
-	rotaciones: 
+	rotaciones:
 		.word OW
 		.word OE
 		.word OE
