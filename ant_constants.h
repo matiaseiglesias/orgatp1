@@ -33,5 +33,15 @@
 #define RL 0
 #define RR 1
 
+/* Ant attributes in bytes */
+#define ANT_X 0
+#define ANT_Y 4
+#define ANT_O 8
+
+/* Grid attributes in bytes */
+#define GRID_WIDTH 0
+#define GRID_HEIGHT 4
+#define GRID_GRID 8
+
 #endif /* __PORTABLE_H__ */
 
