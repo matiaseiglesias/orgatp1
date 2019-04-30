@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef ASSEMBLY
 size_t
 palette_size(colour_t *array)
 {
@@ -14,8 +15,6 @@ palette_size(colour_t *array)
 	}
 	return i;
 }
-
-#ifndef ASSEMBLY
 void *
 paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterations)
 {

@@ -28,7 +28,14 @@ paint_a:
 	sw 		$a3, ABA_3($fp)
 
 	subu 	$sp, $sp, LTA_S
-	addi 	$t0, $0, 2
+	
+	//call palette_size
+	move 	$s0, $a0
+	move	$a0, $a2
+	jal		palette_size
+	move	$a0, $s0
+
+	addu 	$t0, $0, $v0
 	sll		$t0, $t0, 2   // t0 <- t0 * 4
 $LOOP:
 	addu  	$t3, $t0, $a3
