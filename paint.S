@@ -90,7 +90,8 @@ $CONTINUE:
 	addu	$t6, $t6, $t7		// t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
 	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
 
-	addu	$t1, $s5, $s2		// t1 <- &(palette[i])
+	sll		$t1, $s5, 2
+	addu	$t1, $t1, $s2		// t1 <- &(palette[i])
 	lw		$t1, 0($t1)			// t1 <- palette[i]
 	sw		$t1, 0($t5)			// grid->grid[ant->y][ant->x] = palette[i]
 
