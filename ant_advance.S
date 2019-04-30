@@ -24,8 +24,13 @@ ant_advance:
 	lw		$t3, GRID_WIDTH($a1)// t3 <- (grid->width)
 	lw		$t4, GRID_HEIGHT($a1)// t4 <- (grid->height)
 
-	addiu	$t0, $a2, movimientos	// t0 <- &(movimientos[orientacion])
+	la		$t0, movimientos 
+	sll		$t5, $a2, 2
+	addu	$t0, $t0, $t5	// t0 <- &(movimientos[orientacion])
 	lw		$t0, 0($t0)
+
+	move	$t5, $t2
+	move	$t6, $t1
 	jr		$t0
 	nop
 $NORTH:
