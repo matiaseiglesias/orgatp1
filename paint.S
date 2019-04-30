@@ -84,12 +84,12 @@ $CONTINUE:
 	mulou	$t6, $t6, 2			// t6 <- C_rot*y
 	addu	$t6, $t6, $t7		// t6 <- C_rot*y + x
 	mulou	$t6, $t6, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
-	addu	$t6, $t6, $rotaciones // t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
+	addiu	$t6, $t6, rotaciones // t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
 	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
 
-	addu	$t8, $s5, $s2		// t8 <- &(palette[i])
-	lw		$t8, 0($t8)			// t8 <- palette[i]
-	sw		$t8, 0($t5)			// grid->grid[ant->y][ant->x] = palette[i]
+	addu	$t1, $s5, $s2		// t1 <- &(palette[i])
+	lw		$t1, 0($t1)			// t1 <- palette[i]
+	sw		$t1, 0($t5)			// grid->grid[ant->y][ant->x] = palette[i]
 
 	sw		$t6, ANT_O($s0)		// ant->o = proxima_orientacion
 
