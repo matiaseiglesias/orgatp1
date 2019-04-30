@@ -10,6 +10,10 @@
 #define ABA_4 32
 
 #define LTA_S 24
+
+#define ABA_PS_S 16
+
+#define ABA_AA_S 16
 	.text
 	.globl paint_a
 	.align 2
@@ -29,29 +33,81 @@ paint_a:
 
 	subu	$sp, $sp, LTA_S
 	
-	//call palette_size
+	// store parameters in callee saved registers
 	move	$s0, $a0
+	move	$s1, $a1
+	move	$s2, $a2
+	move	$s3, $a3
+	lw		$s4, ABA_4($fp)
+	//call palette_size
+	subu	$sp, $sp, ABA_PS_S
 	move	$a0, $a2
 	jal		palette_size
-	move	$a0, $s0
+	addu	$sp, $sp, ABA_PS_S
 
-	addu	$t0, $0, $v0
+	move	$t0, $v0
 	sll		$t0, $t0, 2		// t0 <- t0 * 4
-$LOOP:
-	addu	$t3, $t0, $a3
+$LOOP_COLOUR:
+	addu	$t3, $t0, $s3
 	lw		$t1, 0($t3)		// t1 <- rules[i]
-	addu	$t3, $t0, $a2
+	addu	$t3, $t0, $s2
 	lw		$t2, 0($t3)		// t2 <- palette[i]
 	sll		$t2, $t2, 2		// t2 <- t2 * 4
 	addu	$t2, $t2, $sp 
 	sw		$t1, 0($t2)		// colour_rule[palette[i]] <- t1
 	sub		$t0, $t0, 4
-	bltz	$t0, $FIN
+	bltz	$t0, $FIN_COLOUR
 	nop
-	b		$LOOP
+	b		$LOOP_COLOUR
 	nop
-$FIN:
-	lw		$v0, CG($sp)
+$FIN_COLOUR:
+	move	$s5, $0
+	addu	$s5, $s5, 1			// i = 1
+$LOOP_ITERATIONS:
+	bne		$s5, $v0, $CONTINUE	// i != palette_len
+	nop
+	subu	$s4, $s4, $s5		// iterations = iterations - i;
+	move	$s5, $0				// i = 0
+$CONTINUE:
+	lw		$t1, ANT_X($s0)		// t1 <- (ant->x)
+	lw		$t2, ANT_Y($s0)		// t2 <- (ant->y)
+	lw		$t3, GRID_WIDTH($s1)// t3 <- (grid->width)
+	lw		$t4, GRID_GRID($s1)	// t4 <- (grid->grid)
+	mulou	$t5, $t3, $t2		// t5 <- C_grid*y
+	addu	$t5, $t5, $t1		// t5 <- C_grid*y + x
+	mulou	$t5, $t5, 4			// t5 <- (x+C_grid*y)*sizeof(colour_t)
+	addu	$t5, $t5, $t4 		// t5 <- &(grid->grid[ant->x][ant->y])
+	lw		$t6, 0($t5)			// t6 <- grid->grid[ant->x][ant->y]
+	addu	$t6, $t6, $sp		// t6 <- &(colour_rule[grid->grid[ant->x][ant->y]])
+	lw		$t6, 0($t6)			// t6 <- colour_rule[grid->grid[ant->x][ant->y]]
+	lw		$t7, ANT_O($s0)		// t7 <- (ant->o)
+	mulou	$t6, $t6, 2			// t6 <- C_rot*y
+	addu	$t6, $t6, $t7		// t6 <- C_rot*y + x
+	mulou	$t6, $t6, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
+	addu	$t6, $t6, $rotaciones // t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
+	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
+
+	addu	$t8, $s5, $s2		// t8 <- &(palette[i])
+	lw		$t8, 0($t8)			// t8 <- palette[i]
+	sw		$t8, 0($t5)			// grid->grid[ant->y][ant->x] = palette[i]
+
+	sw		$t6, ANT_O($s0)		// ant->o = proxima_orientacion
+
+	//call ant_advance
+	subu	$sp, $sp, ABA_AA_S
+	move	$a0, $s0
+	move	$a1, $s1
+	move	$a2, $t6
+	jal		ant_advance
+	addu	$sp, $sp, ABA_AA_S
+
+	beq		$s5, $s4, $FIN_ITERATIONS
+	nop
+	addu	$s5, $s5, 1
+	b		$LOOP_ITERATIONS
+	nop
+$FIN_ITERATIONS:
+	move 	$v0, $s1 			// return grid
 
 	move	$sp, $fp
 	lw		$ra, O_RA($sp)
@@ -66,9 +122,9 @@ $FIN:
 	rotaciones:
 		.word OW
 		.word OE
-		.word OE
-		.word OW
 		.word ON
 		.word OS
+		.word OE
+		.word OW
 		.word OS
 		.word ON
