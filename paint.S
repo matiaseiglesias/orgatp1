@@ -73,27 +73,27 @@ $CONTINUE:
 	lw		$t2, ANT_Y($s0)		// t2 <- (ant->y)
 	lw		$t3, GRID_WIDTH($s1)// t3 <- (grid->width)
 	lw		$t4, GRID_GRID($s1)	// t4 <- (grid->grid)
-	sll		$t5, $t2, 2			// t5 <- ant->y * 4
-	addu	$t5, $t5, $t4		// t5 <- &(&(grid[x][ant->y])) (la columna)
-	lw		$t5, 0($t5)			// t5 <- &(grid[x][ant->y]) (la columna)
-	sll		$t1, $t1, 2			// t1 <- ant->x * 4
-	addu	$t5, $t5, $t1		// t5 <- &(grid[ant->x][ant->y])
+	sll		$t5, $t1, 2			// t5 <- ant->x * 4
+	addu	$t5, $t5, $t4		// t5 <- &(grid[ant->x]) (pos mem de pointer a columna
+	lw		$t5, 0($t5)			// t5 <- grid[x] (pointer a la columna)
+	sll		$t2, $t2, 2			// t2 <- ant-y * 4
+	addu	$t5, $t5, $t2		// t5 <- &(grid[ant->x][ant->y])
 	lw 		$t6, 0($t5)			// t6 <- grid[ant->x][ant->y]
 	sll		$t6, $t6, 2			// t6 <- grid[ant->x][ant->y] * 4
 	addu	$t6, $t6, $sp		// t6 <- &(colour_rule[grid->grid[ant->x][ant->y]])
 	lw		$t6, 0($t6)			// t6 <- colour_rule[grid->grid[ant->x][ant->y]]
 	lw		$t7, ANT_O($s0)		// t7 <- (ant->o)
-	mulou	$t6, $t6, 2			// t6 <- C_rot*y
-	addu	$t6, $t6, $t7		// t6 <- C_rot*y + x
-	mulou	$t6, $t6, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
-	la		$t7, rotaciones		// t7 <- &rotaciones
+	mulou	$t7, $t7, 2			// t6 <- C_rot*y
+	addu	$t7, $t7, $t6		// t6 <- C_rot*y + x
+	mulou	$t7, $t7, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
+	la		$t6, rotaciones		// t7 <- &rotaciones
 	addu	$t6, $t6, $t7		// t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
 	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
 
 	sll		$t1, $s5, 2
 	addu	$t1, $t1, $s2		// t1 <- &(palette[i])
 	lw		$t1, 0($t1)			// t1 <- palette[i]
-	sw		$t1, 0($t5)			// grid->grid[ant->y][ant->x] = palette[i]
+	sw		$t1, 0($t5)			// grid->grid[ant->x][ant->y] = palette[i]
 
 	sw		$t6, ANT_O($s0)		// ant->o = proxima_orientacion
 
@@ -126,9 +126,9 @@ $FIN_ITERATIONS:
 	rotaciones:
 		.word OW
 		.word OE
-		.word ON
-		.word OS
 		.word OE
 		.word OW
+		.word ON
+		.word OS
 		.word OS
 		.word ON
