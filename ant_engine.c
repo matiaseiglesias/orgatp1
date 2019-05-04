@@ -46,10 +46,12 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 			iterations = iterations - i;
 			i = 0;
 		}
+		printf("ant->x: %i\n",ant->x );
+		printf("ant->y: %i\n",ant->y );
 		orientation_t proxima_orientacion =
 				rotaciones[ant->o]
 						[colour_rule[grid->grid[ant->x][ant->y]]];
-		grid->grid[ant->y][ant->x] = palette[i];
+		grid->grid[ant->x][ant->y] = palette[i];
 
 		if (proxima_orientacion == NORTH) {
 			int32_t new_y = ant->y - 1;
