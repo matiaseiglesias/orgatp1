@@ -72,7 +72,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 			i = 0;
 		}
 		rotate(&(ant->o), colour_rule[grid->grid[ant->x][ant->y]]);
-		grid->grid[ant->y][ant->x] = palette[i];
+		grid->grid[ant->x][ant->y] = palette[i];
 
 		advance(ant, grid);
 	}
