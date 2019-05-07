@@ -84,6 +84,7 @@ main(int argc, char **argv)
         len = strlen(optarg);
 
         grid_width = as_int(optarg, 0, s);
+        printf("el ancho de la grilla es: %i\n",grid_width);
         grid_height = as_int(optarg, s+1, len);
 
         break;
@@ -199,9 +200,10 @@ void grid_out()
   fprintf(stdout, "%d %d\n", grid_width, grid_height);
   fprintf(stdout, "255\n");
 
-  for (unsigned int i = 0;  i < grid_width; i++) {
-    for (unsigned int j = 0;  j < grid_height; j++) {
-
+  for (unsigned int j = 0;  j < grid_height; j++) {
+  //for (unsigned int i = 0;  i < grid_width; i++) {
+    //for (unsigned int j = 0;  j < grid_height; j++) {
+    for (unsigned int i = 0;  i < grid_width; i++) {
       c = grid.grid[i][j];
 
       switch(c) {
