@@ -72,9 +72,6 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 			iterations = iterations - i;
 			i = 0;
 		}
-
-		printf("ant->x: %i\n",ant->x );
-		printf("ant->y: %i\n",ant->y );
 		orientation_t proxima_orientacion =
 				rotaciones[ant->o]
 						[colour_rule[grid->grid[ant->x][ant->y]]];
@@ -109,7 +106,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 void *
 paint(void *ant, void *grid, void *palette, void *rules, uint32_t iterations)
 {
-	printf("%u\n",paint_a(ant, grid, palette, rules, iterations));
+	paint_a(ant, grid, palette, rules, iterations);
 	return grid;
 }
 #endif
@@ -117,7 +114,7 @@ paint(void *ant, void *grid, void *palette, void *rules, uint32_t iterations)
 void *
 make_rules(char *spec)
 {
-	size_t rules_size = (strlen(spec) / 2) + 1 + 1;
+	size_t rules_size = (strlen(spec) / 2) + 2;
 	rotation_t *rules = malloc(rules_size * sizeof(rotation_t));
 
 	size_t i = 0, j = 0;
@@ -142,7 +139,7 @@ make_rules(char *spec)
 void *
 make_palette(char *colours)
 {
-	size_t palette_size = ((strlen(colours) / 2) + 1 + 1);
+	size_t palette_size = ((strlen(colours) / 2) + 2);
 	colour_t *palette = malloc(palette_size * sizeof(colour_t));
 
 	size_t i = 0, j = 0;
