@@ -188,7 +188,8 @@ make_ant(uint32_t xini, uint32_t yini)
 {
   ant.x = xini;
   ant.y = yini;
-  ant.o = NORTH;
+  ant.o.x = 0;
+  ant.o.y = 1;
 
   return &ant;
 }

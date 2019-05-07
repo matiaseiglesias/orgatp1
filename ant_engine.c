@@ -16,6 +16,42 @@ palette_size(colour_t *array)
 	return i;
 }
 
+void
+rotate(orientation_t *orientation, rotation_t rotation)
+{
+	if (rotation == LEFT) {
+		uint32_t old_x = orientation->x;
+		orientation->x = -orientation->y;
+		orientation->y = old_x;
+	} else if (rotation == RIGHT) {
+		uint32_t old_x = orientation->x;
+		orientation->x = orientation->y;
+		orientation->y = -old_x;
+	}
+}
+
+void
+advance(ant_t *ant, square_grid_t *grid)
+{
+	if (ant->o.x) {
+		int32_t new_x = ant->x + ant->o.x;
+		if (new_x < 0)
+			ant->x = grid->width - 1;
+		else if (new_x == grid->width)
+			ant->x = 0;
+		else
+			ant->x = new_x;
+	} else if (ant->o.y) {
+		int32_t new_y = ant->y + ant->o.y;
+		if (new_y < 0)
+			ant->y = grid->height - 1;
+		else if (new_y == grid->height)
+			ant->y = 0;
+		else
+			ant->y = new_y;
+	}
+}
+
 void *
 paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterations)
 {
@@ -23,16 +59,6 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 	square_grid_t *grid = grid_p;
 	rotation_t *rules = rules_p;
 	colour_t *palette = palette_p;
-
-	orientation_t rotaciones[4][2];
-	rotaciones[NORTH][LEFT] = WEST;
-	rotaciones[NORTH][RIGHT] = EAST;
-	rotaciones[SOUTH][LEFT] = EAST;
-	rotaciones[SOUTH][RIGHT] = WEST;
-	rotaciones[EAST][LEFT] = NORTH;
-	rotaciones[EAST][RIGHT] = SOUTH;
-	rotaciones[WEST][LEFT] = SOUTH;
-	rotaciones[WEST][RIGHT] = NORTH;
 
 	size_t palette_len = palette_size(palette);
 
@@ -46,6 +72,7 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 			iterations = iterations - i;
 			i = 0;
 		}
+
 		printf("ant->x: %i\n",ant->x );
 		printf("ant->y: %i\n",ant->y );
 		orientation_t proxima_orientacion =
