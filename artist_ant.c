@@ -201,8 +201,6 @@ void grid_out()
   fprintf(stdout, "255\n");
 
   for (unsigned int j = 0;  j < grid_height; j++) {
-  //for (unsigned int i = 0;  i < grid_width; i++) {
-    //for (unsigned int j = 0;  j < grid_height; j++) {
     for (unsigned int i = 0;  i < grid_width; i++) {
 
       c = grid.grid[i][j];

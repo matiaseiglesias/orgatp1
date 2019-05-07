@@ -20,7 +20,7 @@
 /* White */
 #define  CW 5
 
-/* Hightest color number */
+/* Highest color number */
 #define  MAXCOLOR 5
 
 /* Orientation */
