@@ -84,7 +84,7 @@ main(int argc, char **argv)
         len = strlen(optarg);
 
         grid_width = as_int(optarg, 0, s);
-        printf("el ancho de la grilla es: %i\n",grid_width);
+        //printf("el ancho de la grilla es: %i\n",grid_width);
         grid_height = as_int(optarg, s+1, len);
 
         break;
@@ -188,8 +188,7 @@ make_ant(uint32_t xini, uint32_t yini)
 {
   ant.x = xini;
   ant.y = yini;
-  ant.o.x = 0;
-  ant.o.y = 1;
+  ant.o = NORTH;
 
   return &ant;
 }
