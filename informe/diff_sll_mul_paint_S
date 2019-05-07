@@ -1,0 +1,51 @@
+diff --git a/paint.S b/paint.S
+index 85137f7..2a41ccb 100644
+--- a/paint.S
++++ b/paint.S
+@@ -46,13 +46,13 @@ paint_a:
+ 	addu	$sp, $sp, ABA_PS_S
+ 
+ 	move	$t0, $v0
+-	sll		$t0, $t0, 2		// t0 <- t0 * 4
++	mulou	$t0, $t0, 4		// t0 <- t0 * 4
+ $LOOP_COLOUR:
+ 	addu	$t3, $t0, $s3
+ 	lw		$t1, 0($t3)		// t1 <- rules[i]
+ 	addu	$t3, $t0, $s2
+ 	lw		$t2, 0($t3)		// t2 <- palette[i]
+-	sll		$t2, $t2, 2		// t2 <- t2 * 4
++	mulou	$t2, $t2, 4		// t2 <- t2 * 4
+ 	addu	$t2, $t2, $sp 
+ 	sw		$t1, 0($t2)		// colour_rule[palette[i]] <- t1
+ 	sub		$t0, $t0, 4
+@@ -73,24 +73,24 @@ $CONTINUE:
+ 	lw		$t2, ANT_Y($s0)		// t2 <- (ant->y)
+ 	lw		$t3, GRID_WIDTH($s1)// t3 <- (grid->width)
+ 	lw		$t4, GRID_GRID($s1)	// t4 <- (grid->grid)
+-	sll		$t5, $t1, 2			// t5 <- ant->x * 4
++	mulou	$t5, $t1, 4			// t5 <- ant->x * 4
+ 	addu	$t5, $t5, $t4		// t5 <- &(grid[ant->x]) (pos mem de pointer a columna
+ 	lw		$t5, 0($t5)			// t5 <- grid[x] (pointer a la columna)
+-	sll		$t2, $t2, 2			// t2 <- ant-y * 4
++	mulou	$t2, $t2, 4			// t2 <- ant-y * 4
+ 	addu	$t5, $t5, $t2		// t5 <- &(grid[ant->x][ant->y])
+ 	lw 		$t6, 0($t5)			// t6 <- grid[ant->x][ant->y]
+-	sll		$t6, $t6, 2			// t6 <- grid[ant->x][ant->y] * 4
++	mulou	$t6, $t6, 4			// t6 <- grid[ant->x][ant->y] * 4
+ 	addu	$t6, $t6, $sp		// t6 <- &(colour_rule[grid->grid[ant->x][ant->y]])
+ 	lw		$t6, 0($t6)			// t6 <- colour_rule[grid->grid[ant->x][ant->y]]
+ 	lw		$t7, ANT_O($s0)		// t7 <- (ant->o)
+-	sll		$t7, $t7, 1			// t6 <- C_rot*y
++	mulou	$t7, $t7, 2			// t6 <- C_rot*y
+ 	addu	$t7, $t7, $t6		// t6 <- C_rot*y + x
+-	sll		$t7, $t7, 2			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
++	mulou	$t7, $t7, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
+ 	la		$t6, rotaciones		// t7 <- &rotaciones
+ 	addu	$t6, $t6, $t7		// t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
+ 	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
+ 
+-	sll		$t1, $s5, 2
++	mulou	$t1, $s5, 4
+ 	addu	$t1, $t1, $s2		// t1 <- &(palette[i])
+ 	lw		$t1, 0($t1)			// t1 <- palette[i]
+ 	sw		$t1, 0($t5)			// grid->grid[ant->x][ant->y] = palette[i]
