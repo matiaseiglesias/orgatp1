@@ -151,3 +151,19 @@ clean:
 
 format: .clang-files .clang-format
 	xargs -r clang-format -i <$<
+assembly: 
+
+	fuentes += $(wildcard *.S)
+
+	o_files = $(patsubst %.$(extension),%.o,$(fuentes))
+	
+	o_files = $(patsubst %.S,%.o,$(fuentes))
+
+	$(target): $(o_files)
+		@if [ -z "$(o_files)" ]; \
+		then \
+			echo "No hay archivos de entrada en el directorio actual. Recuerde que la extensión debe ser '.$(extension)' y que no se aceptan directorios anidados."; \
+			if [ -n "$(directorios)" ]; then echo "Directorios encontrados: $(directorios)"; fi; \
+			false; \
+		fi >&2
+		$(LD) $(o_files) -o $(target) $(LDFLAGS)
