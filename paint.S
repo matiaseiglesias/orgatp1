@@ -83,9 +83,9 @@ $CONTINUE:
 	addu	$t6, $t6, $sp		// t6 <- &(colour_rule[grid->grid[ant->x][ant->y]])
 	lw		$t6, 0($t6)			// t6 <- colour_rule[grid->grid[ant->x][ant->y]]
 	lw		$t7, ANT_O($s0)		// t7 <- (ant->o)
-	mulou	$t7, $t7, 2			// t6 <- C_rot*y
+	sll		$t7, $t7, 1			// t6 <- C_rot*y
 	addu	$t7, $t7, $t6		// t6 <- C_rot*y + x
-	mulou	$t7, $t7, 4			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
+	sll		$t7, $t7, 2			// t6 <- (x+C_rot*y)*sizeof(orientacion_t)
 	la		$t6, rotaciones		// t7 <- &rotaciones
 	addu	$t6, $t6, $t7		// t6 <- &(rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]])
 	lw		$t6, 0($t6)			// t6 <- rotaciones[ant->o][colour_rule[grid->grid[ant->x][ant->y]]]
