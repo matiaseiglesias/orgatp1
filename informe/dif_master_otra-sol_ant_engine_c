@@ -1,0 +1,119 @@
+diff --git a/ant_engine.c b/ant_engine.c
+index 1725eb4..e2f3a59 100644
+--- a/ant_engine.c
++++ b/ant_engine.c
+@@ -5,7 +5,6 @@
+ #include <stdio.h>
+ #include <string.h>
+ 
+-#ifndef ASSEMBLY
+ size_t
+ palette_size(colour_t *array)
+ {
+@@ -16,6 +15,42 @@ palette_size(colour_t *array)
+ 	return i;
+ }
+ 
++void
++rotate(orientation_t *orientation, rotation_t rotation)
++{
++	if (rotation == LEFT) {
++		uint32_t old_x = orientation->x;
++		orientation->x = -orientation->y;
++		orientation->y = old_x;
++	} else if (rotation == RIGHT) {
++		uint32_t old_x = orientation->x;
++		orientation->x = orientation->y;
++		orientation->y = -old_x;
++	}
++}
++
++void
++advance(ant_t *ant, square_grid_t *grid)
++{
++	if (ant->o.x) {
++		int32_t new_x = ant->x + ant->o.x;
++		if (new_x < 0)
++			ant->x = grid->width - 1;
++		else if (new_x == grid->width)
++			ant->x = 0;
++		else
++			ant->x = new_x;
++	} else if (ant->o.y) {
++		int32_t new_y = ant->y + ant->o.y;
++		if (new_y < 0)
++			ant->y = grid->height - 1;
++		else if (new_y == grid->height)
++			ant->y = 0;
++		else
++			ant->y = new_y;
++	}
++}
++
+ void *
+ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterations)
+ {
+@@ -24,16 +59,6 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
+ 	rotation_t *rules = rules_p;
+ 	colour_t *palette = palette_p;
+ 
+-	orientation_t rotaciones[4][2];
+-	rotaciones[NORTH][LEFT] = WEST;
+-	rotaciones[NORTH][RIGHT] = EAST;
+-	rotaciones[SOUTH][LEFT] = EAST;
+-	rotaciones[SOUTH][RIGHT] = WEST;
+-	rotaciones[EAST][LEFT] = NORTH;
+-	rotaciones[EAST][RIGHT] = SOUTH;
+-	rotaciones[WEST][LEFT] = SOUTH;
+-	rotaciones[WEST][RIGHT] = NORTH;
+-
+ 	size_t palette_len = palette_size(palette);
+ 
+ 	rotation_t colour_rule[MAXCOLOR];
+@@ -46,44 +71,13 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
+ 			iterations = iterations - i;
+ 			i = 0;
+ 		}
+-		orientation_t proxima_orientacion =
+-				rotaciones[ant->o]
+-						[colour_rule[grid->grid[ant->x][ant->y]]];
++		rotate(&(ant->o), colour_rule[grid->grid[ant->x][ant->y]]);
+ 		grid->grid[ant->x][ant->y] = palette[i];
+ 
+-		if (proxima_orientacion == NORTH) {
+-			int32_t new_y = ant->y - 1;
+-			if (new_y < 0)
+-				ant->y = grid->height - 1;
+-			else
+-				ant->y = new_y;
+-		} else if (proxima_orientacion == SOUTH) {
+-			ant->y++;
+-			if (ant->y == grid->height)
+-				ant->y = 0;
+-		} else if (proxima_orientacion == EAST) {
+-			ant->x++;
+-			if (ant->x == grid->width)
+-				ant->x = 0;
+-		} else {
+-			int32_t new_x = ant->x - 1;
+-			if (new_x < 0)
+-				ant->x = grid->width - 1;
+-			else
+-				ant->x = new_x;
+-		}
+-		ant->o = proxima_orientacion;
++		advance(ant, grid);
+ 	}
+ 	return grid;
+ }
+-#else
+-void *
+-paint(void *ant, void *grid, void *palette, void *rules, uint32_t iterations)
+-{
+-	paint_a(ant, grid, palette, rules, iterations);
+-	return grid;
+-}
+-#endif
+ 
+ void *
+ make_rules(char *spec)
