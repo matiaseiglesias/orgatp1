@@ -135,7 +135,14 @@ endif
 
 all: $(target)
 
+fuentes += $(wildcard *.S)
+
 o_files = $(patsubst %.$(extension),%.o,$(fuentes))
+	
+o_files = $(patsubst %.S,%.o,$(fuentes))
+
+CFLAGS += -D ASSEMBLY
+
 
 $(target): $(o_files)
 	@if [ -z "$(o_files)" ]; \
