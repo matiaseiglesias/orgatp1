@@ -103,6 +103,8 @@ paint(void *ant_p, void *grid_p, void *palette_p, void *rules_p, uint32_t iterat
 	return grid;
 }
 #else
+void * paint_a(void *ant, void *grid, void *palette, void *rules, uint32_t iterations);
+
 void *
 paint(void *ant, void *grid, void *palette, void *rules, uint32_t iterations)
 {

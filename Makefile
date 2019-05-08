@@ -9,9 +9,6 @@
 # Nombre del ejecutable.
 target = tp.exe
 
-# Extensión de los archivos a compilar (c para C, cpp o cc o cxx para C++).
-extension = c
-
 # Archivos con el código fuente que componen el ejecutable. Si no se especifica,
 # toma todos los archivos con la extensión mencionada. Para especificar hay que
 # descomentar la línea (quitarle el '#' del principio).
@@ -19,20 +16,10 @@ extension = c
 #fuentes = entrada.cpp
 
 # Si usa funciones de math.h, descomentar (quitar el '#' a) la siguiente línea.
-math = si
-
-# Si usa threads, descomentar (quitar el '#' a) la siguiente línea.
-#threads = si
-
-# Si es un programa GTK+, descomentar (quitar el '#' a) la siguiente línea.
-#gtk = si
-
-# Si es un programa gtkmm, descomentar (quitar el '#' a) la siguiente línea.
-#gtkmm = si
+#math = si
 
 # Descomentar si se quiere ver como se invoca al compilador
-#verbose = si
-
+verbose = si
 
 # CONFIGURACION "AVANZADA"
 ###########################
@@ -62,57 +49,18 @@ CXXSTD = c++11
 # VARIABLES CALCULADAS A PARTIR DE LA CONFIGURACION
 ####################################################
 
-# Agrega flags y libs de GTK+ de ser necesario.
-ifdef gtk
-CFLAGS += $(shell pkg-config --cflags gtk+-3.0) \
-	-DG_DISABLE_DEPRECATED 	 	\
-	-DGDK_DISABLE_DEPRECATED 	\
-	-DGDK_PIXBUF_DISABLE_DEPRECATED \
-	-DGTK_DISABLE_DEPRECATED
-LDFLAGS += $(shell pkg-config --libs gtk+-3.0)
-endif
-
-# Agrega flags y libs de GTK+ de ser necesario.
-ifdef gtkmm
-CFLAGS += $(shell pkg-config --cflags gtkmm-3.0) \
-	-DG_DISABLE_DEPRECATED 	 	\
-	-DGDK_DISABLE_DEPRECATED 	\
-	-DGDK_PIXBUF_DISABLE_DEPRECATED \
-	-DGTK_DISABLE_DEPRECATED	\
-	-DGDKMM_DISABLE_DEPRECATED 	\
-	-DGTKMM_DISABLE_DEPRECATED
-LDFLAGS += $(shell pkg-config --libs gtkmm-3.0)
-endif
-
 # Linkea con libm de ser necesario.
 ifdef math
 LDFLAGS += -lm
-endif
-
-# Linkea con threads de ser necesario. Permite el uso de pthread en C y C++. Permite el uso de built-in threads en C++.
-ifdef threads
-LDFLAGS += -pthread
 endif
 
 ifdef static
 LDFLAGS += -static
 endif
 
-# Se reutilizan los flags de C para C++ también
-CXXFLAGS += $(CFLAGS)
-
-# Se usa enlazador de c++ si es código no C.
-ifeq ($(extension), c)
 CFLAGS += -std=$(CSTD)
 LD = $(CC)
-else
-CXXFLAGS += -std=$(CXXSTD)
-LD = $(CXX)
-endif
 
-# Si no especifica archivos, tomo todos.
-fuentes ?= $(wildcard *.$(extension))
-directorios = $(shell find . -type d -regex '.*\w+')
 
 occ := $(CC)
 ocxx := $(CXX)
@@ -135,26 +83,17 @@ endif
 
 all: $(target)
 
-fuentes += $(wildcard *.S)
+$(target): artist_ant.o ant_engine.o 
+	cc -Wall -Werror  -O3 -ggdb -DDEBUG -fno-inline -std=c99 -D ASSEMBLY -I../tp1 -o $(target) artist_ant.o ant_engine.o
 
-o_files = $(patsubst %.$(extension),%.o,$(fuentes))
-	
-o_files = $(patsubst %.S,%.o,$(fuentes))
+ant_engine.o: ant_engine.c ant_engine.h ant_advance.S paint.S palette_size.S ant_constants.h
+	cc -Wall -Werror  -O3 -ggdb -DDEBUG -fno-inline -std=c99 -D ASSEMBLY -I../tp1 -c ant_engine.c ant_advance.S paint.S palette_size.S
 
-CFLAGS += -D ASSEMBLY
-
-
-$(target): $(o_files)
-	@if [ -z "$(o_files)" ]; \
-	then \
-		echo "No hay archivos de entrada en el directorio actual. Recuerde que la extensión debe ser '.$(extension)' y que no se aceptan directorios anidados."; \
-		if [ -n "$(directorios)" ]; then echo "Directorios encontrados: $(directorios)"; fi; \
-		false; \
-	fi >&2
-	$(LD) $(o_files) -o $(target) $(LDFLAGS)
+artist_ant.o: artist_ant.c artist_ant.h ant_engine.h ant_constants.h
+	cc -Wall -Werror  -O3 -ggdb -DDEBUG -fno-inline -std=c99 -D ASSEMBLY -I../tp1 -c artist_ant.c
 
 clean:
-	$(RM) $(o_files) $(target)
+	$(RM) $(wildcard *.o) $(target)
 
 format: .clang-files .clang-format
 	xargs -r clang-format -i <$<
