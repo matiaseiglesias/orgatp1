@@ -159,6 +159,8 @@ assembly:
 	
 	o_files = $(patsubst %.S,%.o,$(fuentes))
 
+	CFLAGS += -D ASSEMBLY
+
 	$(target): $(o_files)
 		@if [ -z "$(o_files)" ]; \
 		then \
