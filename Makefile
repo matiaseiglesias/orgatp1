@@ -1,101 +1,27 @@
-# CONFIGURACION
-################
+CFLAGS := -g -Wall
+CFLAGS += -O3 -ggdb -DDEBUG -fno-inline
+ASFLAGS = $(CFLAGS)
 
-# Nombre del ejecutable.
-target = tp.exe
+ASMS := $(wildcard *.S)  # wildcard *.S
+SRCS := $(wildcard *.c)  # wildcard *.c
 
-# Extensión de los archivos a compilar (c para C, cpp o cc o cxx para C++).
-extension = c
+PROG := $(patsubst %.S,%,$(ASMS))  # patsubst %.S → %
+PROG += $(patsubst %.c,%,$(SRCS))  # patsubst %.c → %
+PROG += tp
 
-# Archivos con el código fuente que componen el ejecutable. Si no se especifica,
-# toma todos los archivos con la extensión mencionada. Para especificar hay que
-# descomentar la línea (quitarle el '#' del principio).
-# NOTA: No poner cabeceras (.h).
-#fuentes = entrada.cpp
+all: $(PROG)
 
-# Si usa funciones de math.h, descomentar (quitar el '#' a) la siguiente línea.
-math = si
+tp: ant_engine.c artist_ant.c
+	$(CC) $(CFLAGS) $^ -o $@
 
-# CONFIGURACION "AVANZADA"
-###########################
+tp.mips: paint.S ant_engine.c artist_ant.c palette_size.S ant_advance.S
+	$(CC) $(ASFLAGS) -D ASSEMBLY $^ -o $@
 
-# Opciones para el compilador C/C++ para tratamiento de errores y warnings.
-CFLAGS = -Wall -Werror 
-
-# Para optimizar el binario resultante lo mejor posible
-CFLAGS += -O3
-
-# Para valgrind o debug
-CFLAGS += -ggdb -DDEBUG -fno-inline
-
-# Opciones del enlazador.
-#LDFLAGS =
-
-# Estandar de C a usar
-CSTD = c99
-
-# Si se quiere compilar estaticamente, descomentar la siguiente linea
-#static = si
-
-
-# VARIABLES CALCULADAS A PARTIR DE LA CONFIGURACION
-####################################################
-# Linkea con libm de ser necesario.
-ifdef math
-LDFLAGS += -lm
-endif
-
-ifdef static
-LDFLAGS += -static
-endif
-
-# Se usa enlazador de c++ si es código no C.
-ifeq ($(extension), c)
-CFLAGS += -std=$(CSTD)
-LD = $(CC)
-else
-CXXFLAGS += -std=$(CXXSTD)
-LD = $(CXX)
-endif
-
-# Si no especifica archivos, tomo todos.
-fuentes ?= $(wildcard *.$(extension))
-directorios = $(shell find . -type d -regex '.*\w+')
-
-occ := $(CC)
-ocxx := $(CXX)
-orm := $(RM)
-old := $(LD)
-ifdef verbose
-RM := $(RM) -v
-else
-CC =  @echo "  CC  $@"; $(occ)
-CXX = @echo "  CXX $@"; $(ocxx)
-RM =  @echo "  CLEAN"; $(orm)
-LD =  @echo "  LD  $@"; $(old)
-endif
-
-
-# REGLAS
-#########
-
-.PHONY: all clean
-
-all: $(target)
-
-o_files = $(patsubst %.$(extension),%.o,$(fuentes))
-	
-$(target): $(o_files)
-	@if [ -z "$(o_files)" ]; \
-	then \
-		echo "No hay archivos de entrada en el directorio actual. Recuerde que la extensión debe ser '.$(extension)' y que no se aceptan directorios anidados."; \
-		if [ -n "$(directorios)" ]; then echo "Directorios encontrados: $(directorios)"; fi; \
-		false; \
-	fi >&2
-	$(LD) $(o_files) -o $(target) $(LDFLAGS)
+indent: .clang-files .clang-format
+	xargs -r clang-format -i <$<
 
 clean:
-	$(RM) $(o_files) $(target)
+	rm -f $(PROG) *.o core
 
-format: .clang-files .clang-format
-	xargs -r clang-format -i <$<
+.PHONY: clean all
+
