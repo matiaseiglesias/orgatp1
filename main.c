@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <stdbool.h>
 
+#include "block.h"
+
 #define ERROR -1
 #define BUF_LEN 100
 #define N_ARG 2
@@ -103,7 +105,7 @@ main(int argc, char **argv)
 			//get_miss_rate();
 
 		} else {
-			return operation_error();
+			return operation_error(fp, line);
 		}
 
 		free (line);
