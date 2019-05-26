@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <stdbool.h>
 
-#include "block.h"
+#include "cache.h"
 
 #define ERROR -1
 #define BUF_LEN 100
