@@ -2,10 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #define ERROR -1
 #define BUF_LEN 100
 #define N_ARG 2
+#define BASE 10 
+#define ADDRESS 0
+#define VALUE 1
 
 char *readln(FILE* file){
 	char *line = malloc(BUF_LEN*sizeof(char));
@@ -16,11 +20,9 @@ char *readln(FILE* file){
 		free(line);
 		return NULL;
 	}
-	//while (fgets(line + chars_read, sizeof(char), file)){
 	while ((letter != EOF) && (letter != '\n')){
 		line[chars_read] = letter;
 		chars_read = chars_read + sizeof(char);
-		//printf("la cuanta chars_read  BUF_LENda: %i\n", chars_read % BUF_LEN );
 		if ((chars_read % BUF_LEN) == 0){
 			if (!realloc(line, BUF_LEN * ((chars_read/BUF_LEN)+1) * sizeof(char))){
 				free(line);
@@ -30,6 +32,29 @@ char *readln(FILE* file){
 		letter = fgetc(file);
 	}
 	return line;
+}
+
+int operation_error(FILE* file, char *line){
+	printf("Eror al leer comando: %s\n", line );
+	free (line);
+	fclose(file);
+	return ERROR;
+}
+
+bool get_parameters(char *line, long int *parameters){
+	errno = 0;
+	char **last_c = &line;
+	char *tmp_line = line;
+	long int addr = strtol(tmp_line, last_c, BASE);
+	if (errno != 0) return false;
+	if (**last_c == ','){
+		tmp_line = *last_c;
+		long int value = strtol(tmp_line + 2, last_c, BASE);
+		parameters[VALUE] = value;
+	}
+	if (errno != 0) return false;
+	parameters[ADDRESS] = addr;
+	return true;
 }
 
 int
@@ -49,47 +74,43 @@ main(int argc, char **argv)
 		printf("%s\n", "ERROR al leer" );
 		return ERROR;
 	}
+	long int parameters[2];
 	printf("%s\n", line );
+
 	while (line){
 		if (strncmp(line, "FLUSH", 6) == 0){
 			printf("%s\n", "flush action");
+			//init();
+
 		} else if (strncmp(line, "R ", 2) == 0){
-			if (strlen(&line[2]) != 5){
-				free (line);
-				fclose(fp);
-				return ERROR;
+			if (! get_parameters(line, parameters)){
+				return operation_error(fp, line);
 			}
 			printf("%s\n", "r action");
+			//read_byte(parameters[ADDRESS]);
+
 		} else if (strncmp(line, "W ", 2) == 0){
-			if (line[7]!= ',' || line[8] != ' ' || strlen(line) != 12){
-				free (line);
-				fclose(fp);
-				return ERROR;
+			if (line[7]!= ',' || line[8] != ' '){
+				if (! get_parameters(line, parameters)){
+					return operation_error(fp, line);
+				}
 			}
 			printf("%s\n", "w action");
+			//write_byte(parameters[ADDRESS], parameters[VALUE]);
+
 		} else if (strncmp(line, "MR", 3) == 0){
 			printf("%s\n", "mr action");
+			//get_miss_rate();
+
 		} else {
-			printf("Eror al leer comando: %s\n", line );
-			free (line);
-			fclose(fp);
-			return ERROR;
+			return operation_error();
 		}
+
 		free (line);
 		line = readln(fp);
 	}
+
 	free (line);
 	fclose(fp);
 	return 0;
 } 
-/*
-El comando “FLUSH” se ejecuta llamando a la función init(). Repre-
-senta el vaciado del caché.
-Los comandos de la forma “R ddddd” se ejecutan llamando a la función
-read byte(ddddd) e imprimiendo el resultado.
-Los comandos de la forma “W ddddd, vvv” se ejecutan llamando a la
-función write byte(unsigned int ddddd, char vvv) e imprimien-
-do el resultado.
-El comando “MR” se ejecuta llamando a la función get miss rate() e
-imprimiendo el resultado.
-*/
