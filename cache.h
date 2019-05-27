@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "block.h"
+#include "cola.h"
 
 #define N_VIAS 4
 #define N_BLOCKS 8
@@ -13,7 +14,7 @@
 
 typedef struct {
     block_t **vias;
-    //FIFO
+    cola_t **fifos;
     unsigned int n_acces;
     unsigned int n_miss;
 } cache_t;
