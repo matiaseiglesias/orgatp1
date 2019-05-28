@@ -4,10 +4,10 @@
 void write_block(block_t *block, char *mem_block){
 	memcpy(block -> data, mem_block, BS);
 }
-char read_byte(block_t *block, unsigned int offset){
+char read_byte_b(block_t *block, unsigned int offset){
 	return (block -> data)[offset]; 
 }
-void write_byte(block_t *block, unsigned int offset, unsigned char value){
+void write_byte_b(block_t *block, unsigned int offset, unsigned char value){
 	(block -> data)[offset] = value;
 }
 bool tag_compare(block_t *block, char tag){
