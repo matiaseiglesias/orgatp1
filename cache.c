@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 void free_cache(int iterations){
 	for (;iterations > 0; iterations--){
@@ -13,12 +14,13 @@ void free_cache(int iterations){
 
 void free_colas(size_t iterations){
 	for (; iterations > 0; iterations--){
-		cola_destruir(cache->fifos[iterations-1],NULL);//pasarle puntero free()
+		void (*destruction_f)(void*) = free;
+		cola_destruir(cache->fifos[iterations-1], destruction_f);
 	}
 	free(cache->fifos);
 }
 
-bool init_cache(){
+bool init(){
 	cache -> vias = malloc(N_VIAS*(sizeof(block_t*)));
 	if (!cache -> vias) return false;
 	
@@ -64,7 +66,7 @@ bool init_cache(){
 
 void delete_cache(){
 	free_cache(N_VIAS);
-	free_colas(N_VIAS);
+	free_colas(N_BLOCKS);
 }
 
 void fifo_update(unsigned int set_num, unsigned int n_via){
@@ -90,6 +92,7 @@ unsigned int find_set(unsigned int address){
 }
 
 float get_miss_rate(){
+	if (cache -> n_acces == 0) return 0;
 	return (((float)cache->n_miss / (float)cache->n_acces) * 100);
 }
 
@@ -119,10 +122,11 @@ unsigned char read_byte(unsigned int address){
 			continue;
 		}  
 		if (tag_compare(&(cache->vias[i][index]), tag)){
+			printf("%s\n", "HIT");
 			return read_byte_b(&(cache->vias[i][index]), offset);
 		}//hit
 	}//miss
-
+	printf("%s\n", "MISS");
 	cache -> n_miss++;
 	unsigned int n_via;
 	if (empty_block > 0){
@@ -137,7 +141,6 @@ unsigned char read_byte(unsigned int address){
 	fifo_update(index, n_via);
 
 	return read_byte_b(block_to_replace, offset);
-	//return block_to_replace->data[offset]; //ver si esto está bien, en general toda la función
 }
 
 void write_byte(unsigned int address, unsigned char value){

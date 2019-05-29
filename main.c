@@ -63,11 +63,12 @@ int
 main(int argc, char **argv)
 {
 	
-	if (argc != N_ARG){
-		printf("%s\n","La cantidad de parametros no es la correcta" );
-		return ERROR;
-	}
-	FILE *fp = fopen (argv[1], "r");        
+	//if (argc != N_ARG){
+	//	printf("%s\n","La cantidad de parametros no es la correcta" );
+	//	return ERROR;
+	//}
+	//FILE *fp = fopen (argv[1], "r"); 
+	FILE *fp = fopen ("Pruebas_tp2/prueba1.mem", "r");        
 	if (!fp) {
 		printf("Error: %s al abir la ruta: %s\n", strerror(errno), argv[1]);
 		return ERROR;
@@ -78,19 +79,21 @@ main(int argc, char **argv)
 		return ERROR;
 	}
 	long int parameters[2];
-	printf("%s\n", line );
+	
+	cache = malloc(sizeof(cache_t));
+	printf("%d\n", init());
 
 	while (line){
 		if (strncmp(line, "FLUSH", 6) == 0){
 			printf("%s\n", "flush action");
-			//init();
+			init();
 
 		} else if (strncmp(line, "R ", 2) == 0){
 			if (! get_parameters(line, parameters)){
 				return operation_error(fp, line);
 			}
 			printf("%s\n", "r action");
-			//read_byte(parameters[ADDRESS]);
+			read_byte(parameters[ADDRESS]);
 
 		} else if (strncmp(line, "W ", 2) == 0){
 			if (line[7]!= ',' || line[8] != ' '){
@@ -99,11 +102,11 @@ main(int argc, char **argv)
 				}
 			}
 			printf("%s\n", "w action");
-			//write_byte(parameters[ADDRESS], parameters[VALUE]);
+			write_byte(parameters[ADDRESS], parameters[VALUE]);
 
-		} else if (strncmp(line, "MR", 3) == 0){
+		} else if (strncmp(line, "MR", 2) == 0){
 			printf("%s\n", "mr action");
-			//get_miss_rate();
+			get_miss_rate();
 
 		} else {
 			return operation_error(fp, line);
@@ -115,6 +118,7 @@ main(int argc, char **argv)
 
 	free (line);
 	fclose(fp);
-	
+	delete_cache();
+	free(cache);
 	return 0;
 } 

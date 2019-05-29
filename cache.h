@@ -25,7 +25,7 @@ typedef struct {
 
 cache_t* cache; //cache como variable global
 
-bool init_cache();
+bool init();
 void delete_cache();
 unsigned int get_tag (unsigned int address);
 unsigned int get_index (unsigned int address);
