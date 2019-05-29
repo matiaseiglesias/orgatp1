@@ -1,7 +1,12 @@
 #include "block.h"
 #include <string.h>
 
-void write_block(block_t *block, char *mem_block){
+void block_init(block_t *block){
+	block -> valid = false;
+}
+
+void write_block(block_t *block, unsigned char *mem_block){
+	set_valid(block);
 	memcpy(block -> data, mem_block, BS);
 }
 char read_byte_b(block_t *block, unsigned int offset){
@@ -10,15 +15,18 @@ char read_byte_b(block_t *block, unsigned int offset){
 void write_byte_b(block_t *block, unsigned int offset, unsigned char value){
 	(block -> data)[offset] = value;
 }
-bool tag_compare(block_t *block, char tag){
+bool tag_compare(block_t *block, unsigned int tag){
 	return block -> tag == tag;
 }
-bool is_dirty(block_t *block){
-	return block -> dirty;
+bool is_valid(block_t *block){
+	return block -> valid;
 }
-void set_dirty(block_t *block){
-	block -> dirty = true;
+void set_valid(block_t *block){
+	block -> valid = true;
 }
-void set_clean(block_t *block){
-	block -> dirty = false;
+void set_tag(block_t *block, unsigned int tag_){
+	block -> tag = tag_;
 }
+//void set_clean(block_t *block){
+//	block -> dirty = false;
+//}

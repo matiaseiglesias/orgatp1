@@ -1,29 +1,30 @@
 #include "cache.h"
-#include <stdlib.h>
 
-void free_cache(cache_t *cache, int iterations){
+#include <stdlib.h>
+#include <string.h>
+
+void free_cache(int iterations){
 	for (;iterations > 0; iterations--){
 		free(cache -> vias[iterations-1]);
 	}
 	free(cache -> vias);
-	free(cache->memory);
+	free(cache -> memory);
 }
 
-void free_colas(cache_t *cache, size_t iterations){
+void free_colas(size_t iterations){
 	for (; iterations > 0; iterations--){
-		cola_destruir(cache->fifos[iterations-1],NULL);
+		cola_destruir(cache->fifos[iterations-1],NULL);//pasarle puntero free()
 	}
 	free(cache->fifos);
-	free_cache(cache, N_VIAS);
 }
 
-bool init_cache(cache_t *cache){
-	cache-> vias = malloc(N_VIAS*(sizeof(block_t*)));
+bool init_cache(){
+	cache -> vias = malloc(N_VIAS*(sizeof(block_t*)));
 	if (!cache -> vias) return false;
 	
-	cache->memory = (unsigned char*) malloc(MEMORY_SIZE);
+	cache -> memory = (unsigned char*) malloc(MEMORY_SIZE);
 	if (!(cache->memory)){
-		free_cache(cache, 0);
+		free_cache(0);
 		return false;
 	}
 
@@ -32,22 +33,26 @@ bool init_cache(cache_t *cache){
 	for (int i = 0; i < N_VIAS; i++){
 		(cache -> vias)[i] = malloc(N_BLOCKS*(sizeof(block_t)));
 		if (!(cache -> vias)[i]){
-			free_cache(cache, i);
+			free_cache(i);
 			return false;
+		}
+		for (int j = 0; j < N_BLOCKS; j++){
+			block_init(&(cache -> vias)[i][j]);
 		}
 	}
 
 	//inicio las colas "fifo"
 	cache->fifos = malloc(N_BLOCKS*(sizeof(cola_t*)));
 	if (!cache->fifos){
-		free_cache(cache, N_VIAS);
+		free_cache(N_VIAS);
 		return false;	
 	} 
 
 	for (size_t i = 0; i < N_BLOCKS; i++){
 		(cache->fifos)[i] = cola_crear();
 		if (!(cache->fifos)[i]){
-			free_colas(cache->fifos, N_VIAS);
+			free_colas(i);
+			free_cache(N_VIAS);
 			return false;
 		}
 	}
@@ -57,8 +62,17 @@ bool init_cache(cache_t *cache){
 	return true;
 }
 
-void delete_cache(cache_t *cache){
-	free_cache(cache, N_VIAS);
+void delete_cache(){
+	free_cache(N_VIAS);
+	free_colas(N_VIAS);
+}
+
+void fifo_update(unsigned int set_num, unsigned int n_via){
+	unsigned int *via = malloc(sizeof(unsigned int));
+	*via = n_via;
+	cola_t *fifo = (cache -> fifos)[set_num];
+	cola_encolar(fifo, via);
+	//abria que comunicar error en caso de fallar el malloc
 }
 
 unsigned int get_tag (unsigned int address){
@@ -79,8 +93,17 @@ float get_miss_rate(){
 	return (((float)cache->n_miss / (float)cache->n_acces) * 100);
 }
 
-void read_tocache(unsigned int blocknum, unsigned int way, unsigned int set){
-	write_block(&(cache->vias[way][set]), cache->memory[blocknum]);
+void read_tocache(unsigned int blocknum, unsigned int way,
+				 unsigned int set){
+	write_block(&(cache->vias[way][set]), &(cache->memory[blocknum]));
+}
+
+unsigned int select_oldest(unsigned int set_num){
+	cola_t *fifo = (cache -> fifos)[set_num];
+	unsigned int *via = (unsigned int*) cola_desencolar(fifo);
+	unsigned int n_via = *via;
+	free(via);
+	return n_via;
 }
 
 unsigned char read_byte(unsigned int address){
@@ -88,54 +111,65 @@ unsigned char read_byte(unsigned int address){
 	unsigned int index = get_index(address);
 	unsigned int offset = get_offset(address);
 
-	block_t* block_via1 = &cache->vias[0][index];
-	block_t* block_via2 = &cache->vias[1][index];
-	block_t* block_via3 = &cache->vias[2][index];
-	block_t* block_via4 = &cache->vias[3][index];
+	cache->n_acces++;
+	int empty_block = -1;
+	for (int i = 0; i< N_VIAS; i++){
+		if (!is_valid(&(cache->vias[i][index]))){
+			empty_block = i;
+			continue;
+		}  
+		if (tag_compare(&(cache->vias[i][index]), tag)){
+			return read_byte_b(&(cache->vias[i][index]), offset);
+		}//hit
+	}//miss
+
+	cache -> n_miss++;
+	unsigned int n_via;
+	if (empty_block > 0){
+		n_via = empty_block;
+	} else{
+		n_via = select_oldest(index);
+	}
+	block_t* block_to_replace = &cache->vias[n_via][index];
+	write_block(block_to_replace, &(cache->memory[address]));
+	set_tag(block_to_replace, tag);
+
+	fifo_update(index, n_via);
+
+	return read_byte_b(block_to_replace, offset);
+	//return block_to_replace->data[offset]; //ver si esto está bien, en general toda la función
+}
+
+void write_byte(unsigned int address, unsigned char value){
+	cache->memory[address] =  value;
+	unsigned int tag = get_tag(address);
+	unsigned int index = get_index(address);
+	unsigned int offset = get_offset(address);
 
 	cache->n_acces++;
-
-	if (block_via1->v == 1) {
-		if (tag == block_via1->tag) {
-			// hit en esta via
-			return (unsigned char)block_via1->data[offset];
-		}
-		// miss en esta via, puede estar en otras
+	int empty_block = -1;
+	for (int i = 0; i< N_VIAS; i++){
+		if (!is_valid(&(cache->vias[i][index]))){
+			empty_block = i;
+			continue;
+		}  
+		if (tag_compare(&(cache->vias[i][index]), tag)){
+			write_byte_b(&(cache->vias[i][index]), offset, value);
+			return;
+		}//hit
+	}//miss
+	
+	cache -> n_miss++;
+	unsigned int n_via;
+	if (empty_block > 0){
+		n_via = empty_block;
+	} else{
+		n_via = select_oldest(index);
 	}
- 
-	if (block_via2->v == 1) {
-		if (tag == block_via2->tag) {
-			// hit
-            return (unsigned char)block_via2->data[offset];
-		}
-		// miss en esta via
-	}
-
-
-	if (block_via3->v == 1) {
-		if (tag == block_via3->tag) {
-			// hit
-            return (unsigned char)block_via3->data[offset];
-		}
-		// miss en esta via
-	}
-
-
-	if (block_via4->v == 1) {
-		if (tag == block_via4->tag) {
-			// hit
-            return (unsigned char)block_via4->data[offset];
-		}
-		// miss en esta via hay que cargar el bloque a cache
-	}
-
-	cache->n_miss++;
-	int n_via = select_oldest(index);
 	block_t* block_to_replace = &cache->vias[n_via][index];
+	write_block(block_to_replace, &(cache->memory[address]));
+	set_tag(block_to_replace, tag);
 
-	write_block(block_to_replace, cache->memory[address]);
-	block_to_replace->v = 1;
-	block_to_replace->tag = tag;
+	fifo_update(index, n_via);
 
-	return block_to_replace->data[offset]; //ver si esto está bien, en general toda la función
 }

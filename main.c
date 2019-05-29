@@ -62,6 +62,7 @@ bool get_parameters(char *line, long int *parameters){
 int
 main(int argc, char **argv)
 {
+	
 	if (argc != N_ARG){
 		printf("%s\n","La cantidad de parametros no es la correcta" );
 		return ERROR;
@@ -114,5 +115,6 @@ main(int argc, char **argv)
 
 	free (line);
 	fclose(fp);
+	
 	return 0;
 } 

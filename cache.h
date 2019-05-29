@@ -25,18 +25,20 @@ typedef struct {
 
 cache_t* cache; //cache como variable global
 
-bool init_cache(cache_t *cache);
-void delete_cache(cache_t *cache);
+bool init_cache();
+void delete_cache();
 unsigned int get_tag (unsigned int address);
 unsigned int get_index (unsigned int address);
 unsigned int get_offset (unsigned int address);
 
 unsigned int find_set(unsigned int address);
 float get_miss_rate();
-void read_tocache(unsigned int blocknum, unsigned int way, unsigned int set);
+void read_tocache(unsigned int blocknum, unsigned int way,
+				 unsigned int set);
 void write_tocache(unsigned int address, unsigned char);
 unsigned char read_byte(unsigned int address);
 unsigned int select_oldest(unsigned int setnum);
+void write_byte(unsigned int address, unsigned char value);
 
 
 /*
