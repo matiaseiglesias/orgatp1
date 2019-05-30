@@ -15,7 +15,7 @@
 
 typedef struct {
     block_t **vias;
-    cola_t **fifos; //ver si va, según la consigna se debe deducir con los metadatos
+    cola_t **fifos; 
 
 	unsigned char* memory; //pongo acá la memoria principal para facilitar acceso
 
