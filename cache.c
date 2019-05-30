@@ -87,6 +87,10 @@ unsigned int get_offset (unsigned int address){
 	return (address & OFFSET);
 }
 
+bool is_valid_addr(unsigned int address){
+	return address < MEMORY_SIZE;
+}
+
 unsigned int find_set(unsigned int address){
 	return get_index(address);
 }
@@ -110,6 +114,10 @@ unsigned int select_oldest(unsigned int set_num){
 }
 
 unsigned char read_byte(unsigned int address){
+	if (! is_valid_addr(address)){
+		printf("Dirreccion: %u fuera de rango\n", address);
+		return ' ';
+	}
 	unsigned int tag = get_tag(address);
 	unsigned int index = get_index(address);
 	unsigned int offset = get_offset(address);
@@ -122,11 +130,9 @@ unsigned char read_byte(unsigned int address){
 			continue;
 		}  
 		if (tag_compare(&(cache->vias[i][index]), tag)){
-			printf("%s\n", "HIT");
 			return read_byte_b(&(cache->vias[i][index]), offset);
 		}//hit
 	}//miss
-	printf("%s\n", "MISS");
 	cache -> n_miss++;
 	unsigned int n_via;
 	if (empty_block > 0){
@@ -144,6 +150,10 @@ unsigned char read_byte(unsigned int address){
 }
 
 void write_byte(unsigned int address, unsigned char value){
+	if (! is_valid_addr(address)){
+		printf("Dirreccion: %u fuera de rango\n", address);
+		return;
+	}
 	cache->memory[address] =  value;
 	unsigned int tag = get_tag(address);
 	unsigned int index = get_index(address);

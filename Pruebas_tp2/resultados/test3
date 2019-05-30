@@ -1,0 +1,24 @@
+Cache Inicializada
+W 128, 1
+W 129, 2
+W 130, 3
+W 131, 4
+R 1152
+Valor leido: 0
+R 2176
+Valor leido: 0
+R 3200
+Valor leido: 0
+R 4224
+Valor leido: 0
+R 128
+Valor leido: 1
+R 129
+Valor leido: 2
+R 130
+Valor leido: 3
+R 131
+Valor leido: 4
+MR
+miss rate: 50.000000%
+ 

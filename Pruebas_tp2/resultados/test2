@@ -1,0 +1,14 @@
+Cache Inicializada
+R 0
+Valor leido: 0
+R 31
+Valor leido: 0
+W 64, 10
+R 64
+Valor leido: 10
+W 64, 20
+R 64
+Valor leido: 20
+MR
+miss rate: 33.333333%
+ 
