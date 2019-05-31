@@ -160,10 +160,8 @@ void write_byte(unsigned int address, unsigned char value){
 	unsigned int offset = get_offset(address);
 
 	cache->n_acces++;
-	int empty_block = -1;
 	for (int i = 0; i< N_VIAS; i++){
 		if (!is_valid(&(cache->vias[i][index]))){
-			empty_block = i;
 			continue;
 		}  
 		if (tag_compare(&(cache->vias[i][index]), tag)){
@@ -173,16 +171,6 @@ void write_byte(unsigned int address, unsigned char value){
 	}//miss
 	
 	cache -> n_miss++;
-	unsigned int n_via;
-	if (empty_block > 0){
-		n_via = empty_block;
-	} else{
-		n_via = select_oldest(index);
-	}
-	block_t* block_to_replace = &cache->vias[n_via][index];
-	write_block(block_to_replace, &(cache->memory[address]));
-	set_tag(block_to_replace, tag);
-
-	fifo_update(index, n_via);
+	
 
 }
