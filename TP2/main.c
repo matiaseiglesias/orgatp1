@@ -69,7 +69,6 @@ main(int argc, char **argv)
 		return ERROR;
 	}
 	FILE *fp = fopen (argv[1], "r"); 
-	//FILE *fp = fopen ("Pruebas_tp2/prueba1.mem", "r");        
 	if (!fp) {
 		printf("Error: %s al abir la ruta: %s\n", strerror(errno), argv[1]);
 		return ERROR;
